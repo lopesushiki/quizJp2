@@ -1,0 +1,286 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バプテスマに関するクイズ - パート2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question p {
+            margin: 0 0 10px;
+            font-weight: bold;
+        }
+        .options label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>バプテスマに関するクイズ - パート2</h1>
+    <form id="quizForm">
+        <label for="nome">名前（お名前）:</label><br>
+        <input type="text" id="nome" name="nome" required style="width:100%; padding:8px; margin-bottom:20px;"><br><br>
+        <div class="question">
+            <p>1. 教会の礼拝中にどのようなサプライズがありましたか？</p>
+            <div class="options">
+                <label><input type="radio" name="q1" value="a"> ラベルのない水のボトルが配られた</label>
+                <label><input type="radio" name="q1" value="b"> コカ・コーラが配られた</label>
+                <label><input type="radio" name="q1" value="c"> 特別な祈りの時間が設けられた</label>
+                <label><input type="radio" name="q1" value="d"> 新しい聖歌が紹介された</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>2. 水のボトルにラベルがないことがなぜ不安を引き起こしましたか？</p>
+            <div class="options">
+                <label><input type="radio" name="q2" value="a"> 水が色付きだったから</label>
+                <label><input type="radio" name="q2" value="b"> 起源や品質が不明で信頼が得られなかったから</label>
+                <label><input type="radio" name="q2" value="c"> ボトルが壊れていたから</label>
+                <label><input type="radio" name="q2" value="d"> 教会が水を配る習慣がなかったから</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>3. ラベルのない水の経験は、既知の製品への信頼とどのように関連していますか？</p>
+            <div class="options">
+                <label><input type="radio" name="q3" value="a"> ラベルのない製品は高価である</label>
+                <label><input type="radio" name="q3" value="b"> 知られていないものは常に危険である</label>
+                <label><input type="radio" name="q3" value="c"> 有名ブランドは安心感を与え、不明なものは不安を生む</label>
+                <label><input type="radio" name="q3" value="d"> ラベルは味に影響する</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>4. 飲料の詳細な説明が重要な理由は何ですか？</p>
+            <div class="options">
+                <label><input type="radio" name="q4" value="a"> 見た目を良くするため</label>
+                <label><input type="radio" name="q4" value="b"> 消費者の安全と透明性を確保するため</label>
+                <label><input type="radio" name="q4" value="c"> 価格を上げるため</label>
+                <label><input type="radio" name="q4" value="d"> 広告のためだけ</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>5. バプテスマはどのように「ラベル」や「封印」にたとえられますか？</p>
+            <div class="options">
+                <label><input type="radio" name="q5" value="a"> 儀式の形式を示す</label>
+                <label><input type="radio" name="q5" value="b"> 個人的な秘密の行為である</label>
+                <label><input type="radio" name="q5" value="c"> イエスに従う決断を公に宣言する</label>
+                <label><input type="radio" name="q5" value="d"> 教会のルールに従うため</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>6. バプテスマの重要性を支持する聖書の一節は何ですか？</p>
+            <div class="options">
+                <label><input type="radio" name="q6" value="a"> ヨハネ 4:14</label>
+                <label><input type="radio" name="q6" value="b"> マタイ 28:19</label>
+                <label><input type="radio" name="q6" value="c"> ローマ 6:3-4</label>
+                <label><input type="radio" name="q6" value="d"> ガラテヤ 3:27</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>7. イエスのバプテスマが重要な理由は何ですか？</p>
+            <div class="options">
+                <label><input type="radio" name="q7" value="a"> 罪を清めるため</label>
+                <label><input type="radio" name="q7" value="b"> ユダヤの伝統を守るため</label>
+                <label><input type="radio" name="q7" value="c"> 神に従い、すべての人に模範を示すため</label>
+                <label><input type="radio" name="q7" value="d"> ヨハネを称えるため</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>8. バプテスマと信頼の関係はどのように説明されていますか？</p>
+            <div class="options">
+                <label><input type="radio" name="q8" value="a"> 教会の水への信頼は神への信頼を反映する</label>
+                <label><input type="radio" name="q8" value="b"> 信頼はバプテスマに必要ない</label>
+                <label><input type="radio" name="q8" value="c"> 信頼はリーダーにのみ必要</label>
+                <label><input type="radio" name="q8" value="d"> 信頼は水の品質に依存する</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>9. 「霊的な封印」の意味は何ですか？</p>
+            <div class="options">
+                <label><input type="radio" name="q9" value="a"> 教会の儀式の開始</label>
+                <label><input type="radio" name="q9" value="b"> 神と教会との約束を聖霊で確認する</label>
+                <label><input type="radio" name="q9" value="c"> 個人的な信仰の隠蔽</label>
+                <label><input type="radio" name="q9" value="d"> バプテスマの形式的な終了</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>10. バプテスマの真の影響は何にありますか？</p>
+            <div class="options">
+                <label><input type="radio" name="q10" value="a"> 水の量</label>
+                <label><input type="radio" name="q10" value="b"> 外見の変化</label>
+                <label><input type="radio" name="q10" value="c"> 心の内面的な変革</label>
+                <label><input type="radio" name="q10" value="d"> 儀式の形式</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>11. バプテスマにおける水の象徴的役割は何ですか？</p>
+            <div class="options">
+                <label><input type="radio" name="q11" value="a"> 単なる装飾</label>
+                <label><input type="radio" name="q11" value="b"> 罪の清めと新しい人生の始まり</label>
+                <label><input type="radio" name="q11" value="c"> 教会の伝統</label>
+                <label><input type="radio" name="q11" value="d"> 儀式の簡略化</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>12. バプテスマについて疑問や恐れがある人に何を勧めていますか？</p>
+            <div class="options">
+                <label><input type="radio" name="q12" value="a"> バプテスマを避ける</label>
+                <label><input type="radio" name="q12" value="b"> 教会に相談し、準備を進める</label>
+                <label><input type="radio" name="q12" value="c"> 自分で決断する</label>
+                <label><input type="radio" name="q12" value="d"> すぐにバプテスマを受ける</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>13. イエスはバプテスマでどのように表現されていますか？</p>
+            <div class="options">
+                <label><input type="radio" name="q13" value="a"> 厳格な指導者</label>
+                <label><input type="radio" name="q13" value="b"> 罪を清め、永遠の命を与える「命の水」</label>
+                <label><input type="radio" name="q13" value="c"> 儀式の創設者</label>
+                <label><input type="radio" name="q13" value="d"> 信仰の象徴</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>14. 旧約の時代における水の役割は何でしたか？</p>
+            <div class="options">
+                <label><input type="radio" name="q14" value="a"> 装飾的な使用</label>
+                <label><input type="radio" name="q14" value="b"> 司祭の儀式や改宗での浄化と更新</label>
+                <label><input type="radio" name="q14" value="c"> 飲料供給</label>
+                <label><input type="radio" name="q14" value="d"> 儀式の省略</label>
+            </div>
+        </div>
+        <div class="question">
+            <p>15. バプテスマはキリスト者の旅でどのように説明されていますか？</p>
+            <div class="options">
+                <label><input type="radio" name="q15" value="a"> 愛と従順の行為でイエスと結びつく</label>
+                <label><input type="radio" name="q15" value="b"> 単なる伝統的儀式</label>
+                <label><input type="radio" name="q15" value="c"> 任意の選択</label>
+                <label><input type="radio" name="q15" value="d"> 個人的な達成</label>
+            </div>
+        </div>
+        <button type="submit">回答を送信</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+document.getElementById('quizForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const answers = {
+        q1: 'a', q2: 'b', q3: 'c', q4: 'b', q5: 'c',
+        q6: 'c', q7: 'c', q8: 'a', q9: 'b', q10: 'c',
+        q11: 'b', q12: 'b', q13: 'b', q14: 'b', q15: 'a'
+    };
+    let correct = 0;
+    let incorrect = 0;
+    let unanswered = 0;
+    for (let i = 1; i <= 15; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (!selected) {
+            unanswered++;
+        } else if (selected.value === answers[`q${i}`]) {
+            correct++;
+        } else {
+            incorrect++;
+        }
+    }
+
+    const resultDiv = document.getElementById('result');
+    const nome = document.getElementById('nome').value.trim();
+    if (!nome) {
+        alert("名前を入力してください。");
+        return;
+    }
+
+    if (unanswered > 0) {
+        resultDiv.innerHTML = `すべての質問に回答してください。${unanswered}問が未回答です。`;
+    } else {
+        resultDiv.innerHTML = `<strong>${nome}</strong>さんの結果:<br>✅ 正解: ${correct} 問<br>❌ 不正解: ${incorrect} 問`;
+
+        fetch("https://script.google.com/macros/s/AKfycbz3iDW3smlwzxjFQ7MHHZZpb7ZEYeg65wTaYWwZtwpzm2L5d-APFfX_dkLnAF4NR6NH/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `nombre=${encodeURIComponent(nome)}&correctos=${correct}&errores=${incorrect}&timestamp=${encodeURIComponent(new Date().toLocaleString())}`
+        });
+    }
+});
+</script>
+</body>
+</html>
